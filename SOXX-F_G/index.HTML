@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ניתוח סנטימנט: פחד ותאוות בצע מול SOXX (מדד השבבים)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js DataLabels Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Heebo', sans-serif;
+            background-color: #f3f4f6;
+        }
+        
+        /* Print Styles */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 1.5cm;
+            }
+            body {
+                background-color: white !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .shadow-sm {
+                box-shadow: none !important;
+                border: 1px solid #e5e7eb !important;
+            }
+            
+            /* Reset Layouts for Print */
+            .max-w-7xl { max-width: 100% !important; margin: 0 !important; }
+            .grid { display: block !important; } 
+            
+            /* Cards Row */
+            .print-cards-row {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                gap: 15px !important;
+                margin-bottom: 30px !important;
+                page-break-inside: avoid !important;
+            }
+            .print-cards-row > div {
+                flex: 1 !important;
+                width: 32% !important;
+                margin: 0 !important;
+                min-height: 180px;
+            }
+
+            /* Charts Layout */
+            .print-chart-section {
+                display: block !important;
+                width: 100% !important;
+                margin-bottom: 40px !important;
+                page-break-inside: avoid !important;
+            }
+            
+            /* Ensure scrollable containers print fully */
+            .overflow-x-auto { overflow: visible !important; }
+            .min-w-\[700px\] { min-width: 100% !important; }
+
+            .chart-container-print {
+                position: relative !important;
+                display: block !important;
+                height: 450px !important; 
+                width: 100% !important;
+            }
+            
+            #distributionChart {
+                 height: 400px !important; 
+            }
+        }
+
+        /* Custom Scrollbar for mobile charts */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="text-gray-800 p-2 md:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+        
+        <!-- Print Button -->
+        <div class="flex justify-end no-print">
+            <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow transition-colors flex items-center gap-2 text-sm md:text-base">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                הדפס / שמור כ-PDF
+            </button>
+        </div>
+
+        <!-- Header -->
+        <header class="bg-white rounded-2xl shadow-sm p-4 md:p-6 text-center border border-gray-100" style="page-break-inside: avoid;">
+            <h1 class="text-2xl md:text-4xl font-bold text-gray-900 mb-2">מדד פחד ותאוות בצע מול SOXX (מדד השבבים)</h1>
+            <p class="text-gray-500 text-base md:text-lg">ניתוח היסטורי של תשואות מדד השבבים לפי מצב הסנטימנט בשוק</p>
+        </header>
+
+        <!-- Key Insights Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 print-cards-row">
+            <!-- Card 1 -->
+            <div class="bg-white rounded-2xl shadow-sm p-5 md:p-6 border border-gray-100 flex flex-col items-center text-center">
+                <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-3 md:mb-4">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                </div>
+                <h3 class="text-lg md:text-xl font-bold mb-2">הפאניקה משתלמת</h3>
+                <p class="text-gray-600 text-sm md:text-base">במדד השבבים, כניסה בימים של <span class="font-bold text-red-600">פחד קיצוני</span> הניבה את התשואות הגבוהות ביותר: כ-9.37% בתוך 3 חודשים בלבד!</p>
+            </div>
+            
+            <!-- Card 2 -->
+            <div class="bg-white rounded-2xl shadow-sm p-5 md:p-6 border border-gray-100 flex flex-col items-center text-center">
+                <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-3 md:mb-4">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <h3 class="text-lg md:text-xl font-bold mb-2">מפלצת של תשואות</h3>
+                <p class="text-gray-600 text-sm md:text-base">בטווח של שנה קדימה, סקטור השבבים מציג ממוצעי תשואה פנומנליים של <span class="font-bold text-green-600">20% עד 30%</span>, בכל מצבי השוק.</p>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="bg-white rounded-2xl shadow-sm p-5 md:p-6 border border-gray-100 flex flex-col items-center text-center">
+                <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-3 md:mb-4">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
+                </div>
+                <h3 class="text-lg md:text-xl font-bold mb-2">אופטימיות שולטת</h3>
+                <p class="text-gray-600 text-sm md:text-base">השוק מבלה כ-32% מהזמן במצב של <span class="font-bold text-blue-600">תאוות בצע</span>, לעומת רק 11% במצב של תאוות בצע קיצונית.</p>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+            
+            <!-- Main Bar Chart -->
+            <div class="bg-white rounded-2xl shadow-sm p-4 md:p-6 border border-gray-100 lg:col-span-2 print-chart-section overflow-hidden">
+                <h2 class="text-xl md:text-2xl font-bold mb-4 text-gray-800">תשואות ממוצעות (%) מדד ה-SOXX לפי דירוג הפחד/תאוות בצע</h2>
+                
+                <!-- Wrapper for horizontal scrolling on mobile -->
+                <div class="overflow-x-auto custom-scrollbar pb-4">
+                    <div class="relative h-80 md:h-[400px] min-w-[700px] lg:min-w-0 chart-container-print">
+                        <canvas id="returnsChart"></canvas>
+                    </div>
+                </div>
+                
+                <p class="text-xs md:text-sm text-gray-500 mt-2 text-center">
+                    *הגרף מציג את התשואה הממוצעת באחוזים לפרקי זמן שונים בהתאם למצב השוק ביום הבסיס.<br class="block md:hidden"> 
+                    <span class="md:hidden font-semibold">(גלול הצידה כדי לראות את כל הנתונים 👈)</span>
+                </p>
+            </div>
+
+            <!-- Doughnut Chart -->
+            <div class="bg-white rounded-2xl shadow-sm p-4 md:p-6 border border-gray-100 print-chart-section">
+                <h2 class="text-xl md:text-2xl font-bold mb-4 text-gray-800 text-center md:text-right">התפלגות ימי המסחר</h2>
+                <div class="flex justify-center chart-container-print relative h-72 md:h-[350px] w-full">
+                    <canvas id="distributionChart"></canvas>
+                </div>
+                <p class="text-xs md:text-sm text-gray-500 mt-4 text-center">
+                    מתוך 3,832 ימי מסחר במדגם, באיזה מצב סנטימנט היה השוק.
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // Check if mobile for dynamic adjustments
+            const isMobile = window.innerWidth < 768;
+
+            // Register DataLabels plugin globally
+            Chart.register(ChartDataLabels);
+
+            // --- Chart global defaults ---
+            Chart.defaults.font.family = "'Heebo', sans-serif";
+            Chart.defaults.color = '#4b5563';
+            Chart.defaults.plugins.tooltip.rtl = true;
+            Chart.defaults.plugins.legend.rtl = true;
+            Chart.defaults.animation = false; // Prevent animation bugs on print
+            
+            if(isMobile) {
+                Chart.defaults.font.size = 11;
+            }
+
+            window.addEventListener('beforeprint', () => {
+                for (let id in Chart.instances) {
+                    Chart.instances[id].resize();
+                }
+            });
+
+            // --- SOXX Data Setup ---
+            const timeHorizons = ['חודש 1', '3 חודשים', '6 חודשים', 'שנה 1'];
+            
+            // Calculated Returns Data for SOXX
+            const dataExtremeFear = [3.31, 9.37, 13.28, 29.61];
+            const dataFear = [1.64, 4.75, 10.08, 20.28];
+            const dataNeutral = [1.51, 5.27, 12.11, 23.86];
+            const dataGreed = [1.87, 5.86, 11.76, 24.48];
+            const dataExtremeGreed = [1.86, 3.09, 11.81, 28.16];
+
+            // Colors
+            const colorExtremeFear = 'rgba(220, 38, 38, 0.8)';
+            const borderExtremeFear = 'rgba(220, 38, 38, 1)';
+            
+            const colorFear = 'rgba(248, 113, 113, 0.8)';
+            const borderFear = 'rgba(248, 113, 113, 1)';
+            
+            const colorNeutral = 'rgba(156, 163, 175, 0.8)';
+            const borderNeutral = 'rgba(156, 163, 175, 1)';
+            
+            const colorGreed = 'rgba(74, 222, 128, 0.8)';
+            const borderGreed = 'rgba(74, 222, 128, 1)';
+            
+            const colorExtremeGreed = 'rgba(22, 163, 74, 0.8)';
+            const borderExtremeGreed = 'rgba(22, 163, 74, 1)';
+
+            // --- 1. Grouped Bar Chart (Returns) ---
+            const ctxReturns = document.getElementById('returnsChart').getContext('2d');
+            new Chart(ctxReturns, {
+                type: 'bar',
+                data: {
+                    labels: timeHorizons,
+                    datasets: [
+                        { label: 'פחד קיצוני', data: dataExtremeFear, backgroundColor: colorExtremeFear, borderColor: borderExtremeFear, borderWidth: 1, borderRadius: 4 },
+                        { label: 'פחד', data: dataFear, backgroundColor: colorFear, borderColor: borderFear, borderWidth: 1, borderRadius: 4 },
+                        { label: 'ניטרלי', data: dataNeutral, backgroundColor: colorNeutral, borderColor: borderNeutral, borderWidth: 1, borderRadius: 4 },
+                        { label: 'תאוות בצע', data: dataGreed, backgroundColor: colorGreed, borderColor: borderGreed, borderWidth: 1, borderRadius: 4 },
+                        { label: 'תאוות בצע קיצונית', data: dataExtremeGreed, backgroundColor: colorExtremeGreed, borderColor: borderExtremeGreed, borderWidth: 1, borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            top: 50 // Space for rotated labels
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { 
+                                padding: isMobile ? 10 : 20, 
+                                usePointStyle: true, 
+                                boxWidth: 8 
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { return context.dataset.label + ': ' + context.parsed.y + '%'; }
+                            }
+                        },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'end',
+                            rotation: -90,
+                            offset: 6,
+                            color: '#1f2937',
+                            font: {
+                                weight: '600',
+                                size: 10
+                            },
+                            formatter: function(value) {
+                                return value.toFixed(1) + '%';
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#e5e7eb', drawBorder: false },
+                            ticks: { callback: function(value) { return value + '%'; } }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // --- 2. Doughnut Chart (Distribution) ---
+            const ctxDist = document.getElementById('distributionChart').getContext('2d');
+            const distributionData = [587, 999, 583, 1243, 420];
+            const distributionLabels = ['פחד קיצוני', 'פחד', 'ניטרלי', 'תאוות בצע', 'תאוות בצע קיצונית'];
+
+            new Chart(ctxDist, {
+                type: 'doughnut',
+                data: {
+                    labels: distributionLabels,
+                    datasets: [{
+                        data: distributionData,
+                        backgroundColor: [ colorExtremeFear, colorFear, colorNeutral, colorGreed, colorExtremeGreed ],
+                        borderColor: '#ffffff',
+                        borderWidth: 2,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    layout: {
+                        padding: isMobile ? 10 : 15 
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { 
+                                usePointStyle: true, 
+                                padding: isMobile ? 10 : 15 
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return ` ${context.label}: ${value} ימים (${percentage}%)`;
+                                }
+                            }
+                        },
+                        datalabels: {
+                            color: '#ffffff',
+                            anchor: 'center',
+                            align: 'center',
+                            textStrokeColor: 'rgba(0, 0, 0, 0.45)',
+                            textStrokeWidth: 3,
+                            textShadowColor: 'rgba(0, 0, 0, 0.3)',
+                            textShadowBlur: 4,
+                            font: {
+                                weight: 'bold',
+                                size: isMobile ? 13 : 15
+                            },
+                            formatter: function(value, context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                if (percentage < 4) return '';
+                                return percentage + '%'; 
+                            }
+                        }
+                    }
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>
